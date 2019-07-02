@@ -67,8 +67,17 @@
                 [pubSub subscribeToTopic:topic];
             }
         }
-
-        [self registerWithToken:registrationToken];
+        
+        [self registerWithToken:registrationToken app:@"Primary"];
+        
+        FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:<projectID>:ios:<iosId>" GCMSenderID: @"<projectID>"];
+        [FIRApp configureWithName: @"secoundApp" options: options];
+        NSLog(@"App count: %@ \n", [FIRApp allApps]);
+        [[FIRMessaging messaging] retrieveFCMTokenForSenderID:@"<projectID>" completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
+            NSLog(@"Token2: %@", FCMToken);
+            [self registerWithToken:FCMToken app:@"Secondary"];
+        }];
+        
     } else {
         NSLog(@"FCM token is null");
     }
@@ -374,7 +383,7 @@
     [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
 
         if(![weakSelf usesFCM]) {
-            [weakSelf registerWithToken: token];
+            [weakSelf registerWithToken: token app:nil];
         }
     }];
 
@@ -539,12 +548,13 @@
     }
 }
 
--(void)registerWithToken:(NSString*)token; {
+-(void)registerWithToken:(NSString*)token app:(NSString*)app {
     // Send result to trigger 'registration' event but keep callback
     NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:2];
     [message setObject:token forKey:@"registrationId"];
     if ([self usesFCM]) {
         [message setObject:@"FCM" forKey:@"registrationType"];
+        [message setObject:app forKey:@"appId"];
     } else {
         [message setObject:@"APNS" forKey:@"registrationType"];
     }
@@ -614,7 +624,7 @@
                         ntohl(tokenBytes[3]), ntohl(tokenBytes[4]), ntohl(tokenBytes[5]),
                         ntohl(tokenBytes[6]), ntohl(tokenBytes[7])];
 
-    [self registerWithToken:sToken];
+    [self registerWithToken:sToken app:nil];
 }
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
