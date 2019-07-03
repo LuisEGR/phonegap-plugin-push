@@ -54,7 +54,7 @@
 -(void)initRegistration:(NSString*) projectID iosId: (NSString*) iosId;
 {
     NSString * registrationToken = [[FIRInstanceID instanceID] token];
-    NSString *GoogleId = [NSString stringWithFormat:@"1:%@:ios:%@", projectID,iosID];
+    NSString *GoogleId = [NSString stringWithFormat:@"1:%@:ios:%@", projectID,iosId];
     
     if (registrationToken != nil) {
         NSLog(@"FCM Registration Token: %@", registrationToken);
