@@ -54,7 +54,7 @@
 -(void)initRegistration:(NSString*) projectID iosId: (NSString*) iosId;
 {
     NSString * registrationToken = [[FIRInstanceID instanceID] token];
-    NSString *GoogleId = [NSString stringWithFormat:@"1:%@:ios:%@", projectID,iosID];
+    NSString *GoogleId = [NSString stringWithFormat:@"1:%@:ios:%@", projectID,iosId];
     
     if (registrationToken != nil) {
         NSLog(@"FCM Registration Token: %@", registrationToken);
@@ -172,8 +172,8 @@
     NSMutableDictionary* options = [command.arguments objectAtIndex:0];
     NSMutableDictionary* iosOptions = [options objectForKey:@"ios"];
     id voipArg = [iosOptions objectForKey:@"voip"];
-    NSString *iosID = [iosOptions objectForKey:@"iosID"];
-    NSString *projectID = [iosOptions objectForKey:@"projectID"];
+    NSString *iosID = [iosOptions objectForKey:@"iosId"];
+    NSString *projectID = [iosOptions objectForKey:@"secondProjectId"];
     if (([voipArg isKindOfClass:[NSString class]] && [voipArg isEqualToString:@"true"]) || [voipArg boolValue]) {
         [self.commandDelegate runInBackground:^ {
             NSLog(@"Push Plugin VoIP set to true");
