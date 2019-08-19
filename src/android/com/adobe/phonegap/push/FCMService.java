@@ -944,7 +944,8 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
     String savedSenderID = sharedPref.getString(SENDER_ID, "");
 
     Log.d(LOG_TAG, "sender id = " + savedSenderID);
+    return true; // All senders
 
-    return from.equals(savedSenderID) || from.startsWith("/topics/");
+    // return from.equals(savedSenderID) || from.startsWith("/topics/");
   }
 }
