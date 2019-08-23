@@ -71,12 +71,15 @@
         [self registerWithToken:registrationToken app:@"Primary"];
         
         FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:<projectID>:ios:<iosId>" GCMSenderID: @"<projectID>"];
-        [FIRApp configureWithName: @"secoundApp" options: options];
-        NSLog(@"App count: %@ \n", [FIRApp allApps]);
-        [[FIRMessaging messaging] retrieveFCMTokenForSenderID:@"<projectID>" completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
-            NSLog(@"Token2: %@", FCMToken);
-            [self registerWithToken:FCMToken app:@"Secondary"];
-        }];
+        if ([FIRApp appNamed: @"secoundApp"] == nil)  {
+            
+            [FIRApp configureWithName: @"secoundApp" options: options];
+            NSLog(@"App count: %@ \n", [FIRApp allApps]);
+            [[FIRMessaging messaging] retrieveFCMTokenForSenderID:projectID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
+                NSLog(@"Token2: %@", FCMToken);
+                [self registerWithToken:FCMToken app:@"Secondary"];
+            }];
+        }
         
     } else {
         NSLog(@"FCM token is null");
