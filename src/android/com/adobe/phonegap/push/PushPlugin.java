@@ -18,6 +18,8 @@ import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.FirebaseApp;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -208,16 +210,53 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
               }
             }
 
-            if (!"".equals(token)) {
+            String androidId = jo.getString("androidId");
+            String secondProjectId = jo.getString("secondProjectId");
+
+
+            Log.d("AndroidID: ", androidId);
+            Log.d("SecondProjectId", secondProjectId);
+
+              String secondAppId = "1"+secondProjectId+":android:"+androidId;
+
+              FirebaseOptions options = new FirebaseOptions.Builder()
+                      .setApplicationId(secondAppId)
+                      .build();
+              FirebaseApp secondApp;
+              try{
+                secondApp = FirebaseApp.getInstance("secondApp");
+              }
+              catch (IllegalStateException e)
+              {
+                secondApp = FirebaseApp.initializeApp(cordova.getContext(),options,"secondApp");
+              }
+              // FirebaseApp secondApp = FirebaseApp.initializeApp(cordova.getContext(),options,"secondApp");
+              // getTokenWithSender();
+
+              String tokenSecondApp = FirebaseInstanceId.getInstance(secondApp).getToken(secondProjectId,"FCM");
+              Log.d("SecondToken", "tokenSecondApp:"+tokenSecondApp);
+
+              if (!"".equals(token)) {
+
               JSONObject json = new JSONObject().put(REGISTRATION_ID, token);
+              JSONObject json2 = new JSONObject();
               json.put(REGISTRATION_TYPE, FCM);
+              json.put("appId", "Primary");
+
+              if (!"".equals(tokenSecondApp)) {
+                  json2.put(REGISTRATION_ID, tokenSecondApp);
+                  json2.put(REGISTRATION_TYPE, FCM);
+                  json2.put("appId", "Secondary");
+              }
 
               Log.v(LOG_TAG, "onRegistered: " + json.toString());
+              Log.v(LOG_TAG, "onRegistered2: " + json2.toString());
 
               JSONArray topics = jo.optJSONArray(TOPICS);
               subscribeToTopics(topics, registration_id);
 
               PushPlugin.sendEvent(json);
+              PushPlugin.sendEvent(json2);
             } else {
               callbackContext.error("Empty registration ID received from FCM");
               return;
