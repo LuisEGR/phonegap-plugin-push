@@ -222,9 +222,16 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
               FirebaseOptions options = new FirebaseOptions.Builder()
                       .setApplicationId(secondAppId)
                       .build();
-
-              FirebaseApp secondApp = FirebaseApp.initializeApp(cordova.getContext(),options,"secondApp");
-              //getTokenWithSender();
+              FirebaseApp secondApp;
+              try{
+                secondApp = FirebaseApp.getInstance("secondApp");
+              }
+              catch (IllegalStateException e)
+              {
+                secondApp = FirebaseApp.initializeApp(cordova.getContext(),options,"secondApp");
+              }
+              // FirebaseApp secondApp = FirebaseApp.initializeApp(cordova.getContext(),options,"secondApp");
+              // getTokenWithSender();
 
               String tokenSecondApp = FirebaseInstanceId.getInstance(secondApp).getToken(secondProjectId,"FCM");
               Log.d("SecondToken", "tokenSecondApp:"+tokenSecondApp);
