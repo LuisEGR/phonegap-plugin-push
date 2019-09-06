@@ -71,7 +71,7 @@
         
         [self registerWithToken:registrationToken app:@"Primary"];
         
-        FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:<projectID>:ios:<iosId>" GCMSenderID: @"<projectID>"];
+        FIROptions *options = [[FIROptions alloc] initWithGoogleAppID: GoogleId GCMSenderID: @"<projectID>"];
         if ([FIRApp appNamed: @"secoundApp"] == nil)  {
             
             [FIRApp configureWithName: @"secoundApp" options: options];
