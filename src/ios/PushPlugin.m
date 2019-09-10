@@ -53,9 +53,22 @@
 
 -(void)initRegistration:(NSString*) projectID iosId: (NSString*) iosId;
 {
+    NSLog(@"FCM Registration Token: %@",[[FIRInstanceID instanceID] token] );
     NSString * registrationToken = [[FIRInstanceID instanceID] token];
-    NSString *GoogleId = [NSString stringWithFormat:@"1:%@:ios:%@", projectID,iosId];
     
+    NSString *GoogleId = [NSString stringWithFormat:@"1:%@:ios:%@", projectID,iosId];
+    NSString *googleID = [[NSUserDefaults standardUserDefaults] valueForKey:@"googleID"];
+    
+    if (googleID == nil ){
+        [[NSUserDefaults standardUserDefaults] setValue: GoogleId forKey:@"googleID"];
+        [[NSUserDefaults standardUserDefaults] setValue: projectID forKey:@"projectID"];
+        [[NSUserDefaults standardUserDefaults] setValue: iosId
+            forKey:@"iosId"];
+    }else{
+        projectID = [[NSUserDefaults standardUserDefaults] valueForKey:@"projectID"];
+        iosId = [[NSUserDefaults standardUserDefaults] valueForKey:@"iosId"];
+        GoogleId = googleID;
+    }
     if (registrationToken != nil) {
         NSLog(@"FCM Registration Token: %@", registrationToken);
         [self setFcmRegistrationToken: registrationToken];
@@ -71,7 +84,7 @@
         
         [self registerWithToken:registrationToken app:@"Primary"];
         
-        FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:<projectID>:ios:<iosId>" GCMSenderID: @"<projectID>"];
+        FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:GoogleId GCMSenderID: @"<projectID>"];
         if ([FIRApp appNamed: @"secoundApp"] == nil)  {
             
             [FIRApp configureWithName: @"secoundApp" options: options];
@@ -90,7 +103,7 @@
 
 //  FCM refresh token
 //  Unclear how this is testable under normal circumstances
-- (void)onTokenRefresh :(NSString*) projectID iosId: (NSString*) iosID;{
+- (void)onTokenRefresh :(NSString*) projectID iosId: (NSString*) iosID{
 #if !TARGET_IPHONE_SIMULATOR
     // A rotation of the registration tokens is happening, so the app needs to request a new token.
     NSLog(@"The FCM registration token needs to be changed.");
@@ -190,7 +203,7 @@
     } else {
         NSLog(@"Push Plugin VoIP missing or false");
         [[NSNotificationCenter defaultCenter]
-         addObserver:self selector:@selector(onTokenRefresh)
+         addObserver:self selector:@selector(onTokenRefresh:iosId:)
          name:kFIRInstanceIDTokenRefreshNotification object:nil];
         
         [[NSNotificationCenter defaultCenter]
@@ -321,8 +334,8 @@
             [self setFcmSenderId: fcmSenderId];
             if(isGcmEnabled && [[self fcmSenderId] length] > 0) {
                 NSLog(@"Using FCM Notification");
-                [self setUsesFCM: YES];
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    [self setUsesFCM: YES];
                     if([FIRApp defaultApp] == nil)
                         [FIRApp configure];
                     [self initRegistration:projectID iosId:iosID];
