@@ -93,6 +93,11 @@
                 NSLog(@"Token2: %@", FCMToken);
                 [self registerWithToken:FCMToken app:@"Secondary"];
             }];
+        } else {
+            [[FIRMessaging messaging] retrieveFCMTokenForSenderID:projectID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
+                NSLog(@"Token2: %@", FCMToken);
+                [self registerWithToken:FCMToken app:@"Secondary"];
+            }];
         }
         
     } else {
